@@ -5,6 +5,7 @@ internal sealed class ConfigureForm : Form
     private readonly HotkeyBox _readHotkeyBox;
     private readonly HotkeyBox _readSelectionHotkeyBox;
     private readonly HotkeyBox _stopHotkeyBox;
+    private readonly CheckBox _showSelectedTextMouseMenuCheckBox;
 
     public AppSettings Settings { get; private set; }
 
@@ -14,7 +15,8 @@ internal sealed class ConfigureForm : Form
         {
             ReadHotkey = currentSettings.ReadHotkey,
             ReadSelectionHotkey = currentSettings.ReadSelectionHotkey,
-            StopHotkey = currentSettings.StopHotkey
+            StopHotkey = currentSettings.StopHotkey,
+            ShowSelectedTextMouseMenu = currentSettings.ShowSelectedTextMouseMenu
         };
 
         Text = "Configure ClipSpeak";
@@ -23,7 +25,7 @@ internal sealed class ConfigureForm : Form
         MinimizeBox = false;
         MaximizeBox = false;
         ShowInTaskbar = false;
-        ClientSize = new Size(440, 232);
+        ClientSize = new Size(440, 270);
 
         var readLabel = new Label
         {
@@ -75,11 +77,19 @@ internal sealed class ConfigureForm : Form
             Location = new Point(20, 152)
         };
 
+        _showSelectedTextMouseMenuCheckBox = new CheckBox
+        {
+            Text = "Show ClipSpeak menu on Ctrl + Right Click",
+            AutoSize = true,
+            Checked = Settings.ShowSelectedTextMouseMenu,
+            Location = new Point(20, 184)
+        };
+
         var saveButton = new Button
         {
             Text = "Save",
             DialogResult = DialogResult.OK,
-            Location = new Point(254, 188),
+            Location = new Point(254, 226),
             Size = new Size(75, 28)
         };
         saveButton.Click += (_, _) => SaveSettings();
@@ -88,7 +98,7 @@ internal sealed class ConfigureForm : Form
         {
             Text = "Cancel",
             DialogResult = DialogResult.Cancel,
-            Location = new Point(335, 188),
+            Location = new Point(335, 226),
             Size = new Size(75, 28)
         };
 
@@ -103,6 +113,7 @@ internal sealed class ConfigureForm : Form
             stopLabel,
             _stopHotkeyBox,
             hint,
+            _showSelectedTextMouseMenuCheckBox,
             saveButton,
             cancelButton
         ]);
@@ -135,7 +146,8 @@ internal sealed class ConfigureForm : Form
         {
             ReadHotkey = _readHotkeyBox.Hotkey,
             ReadSelectionHotkey = _readSelectionHotkeyBox.Hotkey,
-            StopHotkey = _stopHotkeyBox.Hotkey
+            StopHotkey = _stopHotkeyBox.Hotkey,
+            ShowSelectedTextMouseMenu = _showSelectedTextMouseMenuCheckBox.Checked
         };
     }
 }

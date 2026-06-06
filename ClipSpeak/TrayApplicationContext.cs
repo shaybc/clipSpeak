@@ -7,6 +7,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly SpeechService _speech = new();
     private readonly ClipboardReader _clipboard = new();
     private readonly SelectedTextReader _selectedText = new();
+    private readonly GlobalMouseMenu _mouseMenu;
+    private readonly ContextMenuStrip _selectedTextContextMenu;
     private readonly Icon _appIcon;
     private AppSettings _settings;
 
@@ -14,8 +16,11 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         _settings = AppSettings.Load();
         _appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
+        _selectedTextContextMenu = BuildSelectedTextContextMenu();
+        _mouseMenu = new GlobalMouseMenu(ShowSelectedTextMouseMenu);
         _notifyIcon = BuildNotifyIcon();
         _notifyIcon.Visible = true;
+        _mouseMenu.Enabled = _settings.ShowSelectedTextMouseMenu;
 
         if (!_speech.IsAvailable)
         {
@@ -28,9 +33,11 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private NotifyIcon BuildNotifyIcon()
     {
         var menu = new ContextMenuStrip();
-        menu.Items.Add("Configure", null, (_, _) => ShowConfigureDialog());
+        menu.Items.Add("⚙ Configure", null, (_, _) => ShowConfigureDialog());
+        menu.Items.Add("❔ Help", null, (_, _) => ShowHelpDialog());
+        menu.Items.Add("ℹ About", null, (_, _) => ShowAboutDialog());
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Exit", null, (_, _) => ExitThread());
+        menu.Items.Add("✕ Exit", null, (_, _) => ExitThread());
 
         var icon = new NotifyIcon
         {
@@ -53,7 +60,32 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         _settings = dialog.Settings;
         _settings.Save();
+        _mouseMenu.Enabled = _settings.ShowSelectedTextMouseMenu;
         RegisterHotkeys();
+    }
+
+    private void ShowHelpDialog()
+    {
+        using var dialog = new HelpForm(_appIcon, _settings);
+        dialog.ShowDialog();
+    }
+
+    private void ShowAboutDialog()
+    {
+        using var dialog = new AboutForm(_appIcon);
+        dialog.ShowDialog();
+    }
+
+    private ContextMenuStrip BuildSelectedTextContextMenu()
+    {
+        var menu = new ContextMenuStrip();
+        menu.Items.Add("ClipSpeak selected text", null, (_, _) => ReadSelectedTextAloud());
+        return menu;
+    }
+
+    private void ShowSelectedTextMouseMenu(Point location)
+    {
+        _selectedTextContextMenu.Show(location);
     }
 
     private void RegisterHotkeys()
@@ -126,6 +158,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     protected override void ExitThreadCore()
     {
         _notifyIcon.Visible = false;
+        _mouseMenu.Dispose();
+        _selectedTextContextMenu.Dispose();
         _notifyIcon.Dispose();
         _appIcon.Dispose();
         _speech.Dispose();

@@ -1,8 +1,9 @@
 #define MyAppName "ClipSpeak"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.3.0"
 #define MyAppPublisher "ClipSpeak"
 #define MyAppExeName "ClipSpeak.exe"
 #define SourceDir "..\artifacts\publish\ClipSpeak"
+#define IconFile "..\ClipSpeak\Assets\ClipSpeak.ico"
 
 [Setup]
 AppId={{3B7BD317-F092-49F3-9B0E-61E42D873948}
@@ -14,6 +15,7 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\artifacts\installer
 OutputBaseFilename=ClipSpeakSetup
+SetupIconFile={#IconFile}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
