@@ -3,6 +3,7 @@ namespace ClipSpeak;
 internal sealed class ConfigureForm : Form
 {
     private readonly HotkeyBox _readHotkeyBox;
+    private readonly HotkeyBox _readSelectionHotkeyBox;
     private readonly HotkeyBox _stopHotkeyBox;
 
     public AppSettings Settings { get; private set; }
@@ -12,6 +13,7 @@ internal sealed class ConfigureForm : Form
         Settings = new AppSettings
         {
             ReadHotkey = currentSettings.ReadHotkey,
+            ReadSelectionHotkey = currentSettings.ReadSelectionHotkey,
             StopHotkey = currentSettings.StopHotkey
         };
 
@@ -21,7 +23,7 @@ internal sealed class ConfigureForm : Form
         MinimizeBox = false;
         MaximizeBox = false;
         ShowInTaskbar = false;
-        ClientSize = new Size(420, 188);
+        ClientSize = new Size(440, 232);
 
         var readLabel = new Label
         {
@@ -33,7 +35,21 @@ internal sealed class ConfigureForm : Form
         _readHotkeyBox = new HotkeyBox
         {
             Hotkey = Settings.ReadHotkey,
-            Location = new Point(150, 20),
+            Location = new Point(170, 20),
+            Width = 240
+        };
+
+        var readSelectionLabel = new Label
+        {
+            Text = "Read selected text",
+            AutoSize = true,
+            Location = new Point(20, 68)
+        };
+
+        _readSelectionHotkeyBox = new HotkeyBox
+        {
+            Hotkey = Settings.ReadSelectionHotkey,
+            Location = new Point(170, 64),
             Width = 240
         };
 
@@ -41,13 +57,13 @@ internal sealed class ConfigureForm : Form
         {
             Text = "Pause or stop",
             AutoSize = true,
-            Location = new Point(20, 68)
+            Location = new Point(20, 112)
         };
 
         _stopHotkeyBox = new HotkeyBox
         {
             Hotkey = Settings.StopHotkey,
-            Location = new Point(150, 64),
+            Location = new Point(170, 108),
             Width = 240
         };
 
@@ -56,14 +72,14 @@ internal sealed class ConfigureForm : Form
             Text = "Click a field, then press the hotkey combination.",
             AutoSize = true,
             ForeColor = SystemColors.GrayText,
-            Location = new Point(20, 108)
+            Location = new Point(20, 152)
         };
 
         var saveButton = new Button
         {
             Text = "Save",
             DialogResult = DialogResult.OK,
-            Location = new Point(234, 144),
+            Location = new Point(254, 188),
             Size = new Size(75, 28)
         };
         saveButton.Click += (_, _) => SaveSettings();
@@ -72,7 +88,7 @@ internal sealed class ConfigureForm : Form
         {
             Text = "Cancel",
             DialogResult = DialogResult.Cancel,
-            Location = new Point(315, 144),
+            Location = new Point(335, 188),
             Size = new Size(75, 28)
         };
 
@@ -82,6 +98,8 @@ internal sealed class ConfigureForm : Form
         Controls.AddRange([
             readLabel,
             _readHotkeyBox,
+            readSelectionLabel,
+            _readSelectionHotkeyBox,
             stopLabel,
             _stopHotkeyBox,
             hint,
@@ -92,16 +110,23 @@ internal sealed class ConfigureForm : Form
 
     private void SaveSettings()
     {
-        if (!_readHotkeyBox.Hotkey.IsValid || !_stopHotkeyBox.Hotkey.IsValid)
+        var hotkeys = new[]
         {
-            MessageBox.Show(this, "Both hotkeys need a modifier and a key.", "ClipSpeak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            _readHotkeyBox.Hotkey,
+            _readSelectionHotkeyBox.Hotkey,
+            _stopHotkeyBox.Hotkey
+        };
+
+        if (hotkeys.Any(hotkey => !hotkey.IsValid))
+        {
+            MessageBox.Show(this, "All hotkeys need a modifier and a key.", "ClipSpeak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             DialogResult = DialogResult.None;
             return;
         }
 
-        if (_readHotkeyBox.Hotkey == _stopHotkeyBox.Hotkey)
+        if (hotkeys.Distinct().Count() != hotkeys.Length)
         {
-            MessageBox.Show(this, "Choose two different hotkeys.", "ClipSpeak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(this, "Choose different hotkeys for each action.", "ClipSpeak", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             DialogResult = DialogResult.None;
             return;
         }
@@ -109,6 +134,7 @@ internal sealed class ConfigureForm : Form
         Settings = new AppSettings
         {
             ReadHotkey = _readHotkeyBox.Hotkey,
+            ReadSelectionHotkey = _readSelectionHotkeyBox.Hotkey,
             StopHotkey = _stopHotkeyBox.Hotkey
         };
     }

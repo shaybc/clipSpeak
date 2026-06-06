@@ -6,6 +6,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly GlobalHotkeyManager _hotkeys = new();
     private readonly SpeechService _speech = new();
     private readonly ClipboardReader _clipboard = new();
+    private readonly SelectedTextReader _selectedText = new();
     private readonly Icon _appIcon;
     private AppSettings _settings;
 
@@ -65,6 +66,11 @@ internal sealed class TrayApplicationContext : ApplicationContext
             errors.Add($"Read clipboard: {readError}");
         }
 
+        if (!_hotkeys.Register(_settings.ReadSelectionHotkey, ReadSelectedTextAloud, out var readSelectionError) && readSelectionError is not null)
+        {
+            errors.Add($"Read selected text: {readSelectionError}");
+        }
+
         if (!_hotkeys.Register(_settings.StopHotkey, StopReading, out var stopError) && stopError is not null)
         {
             errors.Add($"Pause/stop reading: {stopError}");
@@ -86,6 +92,23 @@ internal sealed class TrayApplicationContext : ApplicationContext
         }
 
         _speech.SpeakAsync(text);
+    }
+
+    private void ReadSelectedTextAloud()
+    {
+        var result = _selectedText.TryGetSelectedText();
+        if (result.Text is null)
+        {
+            ShowBalloon("No selected text found", "Select text in the focused app, then use the selected-text hotkey.");
+            return;
+        }
+
+        if (!result.ClipboardRestored)
+        {
+            ShowBalloon("Clipboard restore issue", "ClipSpeak read the selected text, but could not restore the previous clipboard contents.");
+        }
+
+        _speech.SpeakAsync(result.Text);
     }
 
     private void StopReading()
