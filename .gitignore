@@ -1,0 +1,23 @@
+# Build outputs
+bin/
+obj/
+
+# Publish and installer artifacts
+artifacts/
+
+# User and IDE state
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Debug symbols and logs
+*.pdb
+*.log
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
