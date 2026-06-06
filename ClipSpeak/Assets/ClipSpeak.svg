@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="ClipSpeak icon">
+  <defs>
+    <linearGradient id="bg" x1="44" y1="24" x2="212" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22a7f2"/>
+      <stop offset="1" stop-color="#1768c9"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="78" y1="56" x2="178" y2="194" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8f3ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#bg)"/>
+  <path d="M101 48h54c9 0 16 7 16 16v8h16c14 0 25 11 25 25v91c0 14-11 25-25 25H69c-14 0-25-11-25-25V97c0-14 11-25 25-25h16v-8c0-9 7-16 16-16z" fill="#0d3d7a" opacity=".28"/>
+  <rect x="54" y="82" width="116" height="126" rx="20" fill="url(#paper)"/>
+  <path d="M91 65h42c6 0 11 5 11 11v8h17c8 0 14 6 14 14v12H70V98c0-8 6-14 14-14h18v-8c0-6 5-11 11-11z" fill="#ffffff"/>
+  <rect x="98" y="58" width="49" height="28" rx="12" fill="#0b4fa5"/>
+  <rect x="78" y="125" width="62" height="10" rx="5" fill="#7aa9d8"/>
+  <rect x="78" y="149" width="48" height="10" rx="5" fill="#9ebfdf"/>
+  <rect x="78" y="173" width="67" height="10" rx="5" fill="#b8cce0"/>
+  <path d="M153 134c0-13 10-23 23-23s23 10 23 23v20c0 13-10 23-23 23s-23-10-23-23z" fill="#fff"/>
+  <path d="M168 134c0-5 3-8 8-8s8 3 8 8v20c0 5-3 8-8 8s-8-3-8-8z" fill="#1569d1"/>
+  <path d="M139 145c0 21 16 37 37 37s37-16 37-37" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M176 182v22" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M157 204h38" stroke="#fff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M209 99c13 13 20 29 20 46s-7 33-20 46" fill="none" stroke="#d7ebff" stroke-width="11" stroke-linecap="round"/>
+  <path d="M194 115c8 8 12 18 12 30s-4 22-12 30" fill="none" stroke="#d7ebff" stroke-width="10" stroke-linecap="round"/>
+</svg>

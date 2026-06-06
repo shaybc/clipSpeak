@@ -6,11 +6,13 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly GlobalHotkeyManager _hotkeys = new();
     private readonly SpeechService _speech = new();
     private readonly ClipboardReader _clipboard = new();
+    private readonly Icon _appIcon;
     private AppSettings _settings;
 
     public TrayApplicationContext()
     {
         _settings = AppSettings.Load();
+        _appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath) ?? SystemIcons.Application;
         _notifyIcon = BuildNotifyIcon();
         _notifyIcon.Visible = true;
 
@@ -32,7 +34,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         var icon = new NotifyIcon
         {
             Text = "ClipSpeak",
-            Icon = SystemIcons.Application,
+            Icon = _appIcon,
             ContextMenuStrip = menu
         };
 
@@ -102,6 +104,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
+        _appIcon.Dispose();
         _speech.Dispose();
         _hotkeys.Dispose();
         base.ExitThreadCore();
