@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace ClipSpeak;
 
 internal sealed class HelpForm : Form
@@ -45,6 +47,7 @@ internal sealed class HelpForm : Form
     {
         return string.Join(Environment.NewLine, [
             "ClipSpeak Help",
+            $"Version {GetVersion()}",
             "",
             "What ClipSpeak does",
             "ClipSpeak runs in the Windows notification area and reads text aloud using your default Windows speech voice.",
@@ -59,6 +62,9 @@ internal sealed class HelpForm : Form
             "",
             "Reading selected text",
             "Select text in the focused app, then press the Read selected text hotkey. ClipSpeak temporarily copies the selection, reads it aloud, and restores your previous clipboard contents when possible.",
+            "",
+            "Mouse popup",
+            "Hold Ctrl and right-click selected text to show the ClipSpeak popup menu, then choose ClipSpeak selected text. This is a ClipSpeak menu, not an item added to each app's own right-click menu. A normal right-click still shows the app's own menu.",
             "",
             "If selected text cannot be copied",
             "Some apps block simulated copy input or run with higher privileges than ClipSpeak. If that happens, ClipSpeak shows a tray notice and does not read old clipboard text by mistake.",
@@ -78,5 +84,11 @@ internal sealed class HelpForm : Form
             "Exiting ClipSpeak",
             "Right-click the tray icon and choose Exit."
         ]);
+    }
+
+    private static string GetVersion()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        return version is null ? "unknown" : $"{version.Major}.{version.Minor}.{version.Build}";
     }
 }

@@ -2,37 +2,48 @@ namespace ClipSpeak;
 
 internal sealed class SelectedTextReader
 {
-    private const int CopyTimeoutMilliseconds = 700;
+    private const int PrimaryCopyTimeoutMilliseconds = 450;
+    private const int FallbackCopyTimeoutMilliseconds = 900;
     private const int ClipboardPollIntervalMilliseconds = 50;
 
-    public SelectedTextResult TryGetSelectedText()
+    public SelectedTextResult TryGetSelectedText(IntPtr targetWindow = default)
     {
         System.Windows.Forms.IDataObject? previousClipboard = null;
         var clipboardRestored = true;
 
         try
         {
+            ForegroundWindow.TryActivate(targetWindow);
             previousClipboard = Clipboard.GetDataObject();
             Clipboard.Clear();
-            KeyboardInput.SendCopyShortcut();
 
-            var text = WaitForClipboardText();
+            KeyboardInput.SendCopyShortcutWithSendKeys();
+            var text = WaitForClipboardText(PrimaryCopyTimeoutMilliseconds);
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                KeyboardInput.SendCopyShortcut();
+                text = WaitForClipboardText(FallbackCopyTimeoutMilliseconds);
+            }
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                RestoreClipboardSoon(previousClipboard);
+                return new SelectedTextResult(text, ClipboardRestored: true);
+            }
+
             clipboardRestored = TryRestoreClipboard(previousClipboard);
-
-            return string.IsNullOrWhiteSpace(text)
-                ? new SelectedTextResult(null, clipboardRestored)
-                : new SelectedTextResult(text, clipboardRestored);
+            return new SelectedTextResult(null, clipboardRestored);
         }
-        catch (Exception ex) when (ex is ExternalException or ThreadStateException)
+        catch
         {
             clipboardRestored = TryRestoreClipboard(previousClipboard);
             return new SelectedTextResult(null, clipboardRestored);
         }
     }
 
-    private static string? WaitForClipboardText()
+    private static string? WaitForClipboardText(int timeoutMilliseconds)
     {
-        var deadline = Environment.TickCount64 + CopyTimeoutMilliseconds;
+        var deadline = Environment.TickCount64 + timeoutMilliseconds;
         while (Environment.TickCount64 < deadline)
         {
             try
@@ -52,6 +63,18 @@ internal sealed class SelectedTextReader
         }
 
         return null;
+    }
+
+    private static void RestoreClipboardSoon(System.Windows.Forms.IDataObject? previousClipboard)
+    {
+        var timer = new System.Windows.Forms.Timer { Interval = 250 };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            _ = TryRestoreClipboard(previousClipboard);
+            timer.Dispose();
+        };
+        timer.Start();
     }
 
     private static bool TryRestoreClipboard(System.Windows.Forms.IDataObject? previousClipboard)

@@ -48,7 +48,15 @@ internal sealed class GlobalHotkeyManager : NativeWindow, IDisposable
     {
         if (m.Msg == WmHotkey && _actions.TryGetValue(m.WParam.ToInt32(), out var action))
         {
-            action();
+            try
+            {
+                action();
+            }
+            catch
+            {
+                // Keep the tray app alive if a hotkey action fails unexpectedly.
+            }
+
             return;
         }
 

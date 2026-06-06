@@ -11,6 +11,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly ContextMenuStrip _selectedTextContextMenu;
     private readonly Icon _appIcon;
     private AppSettings _settings;
+    private IntPtr _selectedTextMouseTargetWindow;
 
     public TrayApplicationContext()
     {
@@ -22,6 +23,11 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _notifyIcon.Visible = true;
         _mouseMenu.Enabled = _settings.ShowSelectedTextMouseMenu;
 
+        if (_settings.ShowSelectedTextMouseMenu && !_mouseMenu.IsInstalled)
+        {
+            ShowBalloon("Mouse menu unavailable", "ClipSpeak could not install the Ctrl + Right Click mouse menu hook.");
+        }
+
         if (!_speech.IsAvailable)
         {
             ShowBalloon("Speech is unavailable", "Windows SAPI speech synthesis could not be started.");
@@ -32,12 +38,13 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private NotifyIcon BuildNotifyIcon()
     {
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("⚙ Configure", null, (_, _) => ShowConfigureDialog());
-        menu.Items.Add("❔ Help", null, (_, _) => ShowHelpDialog());
-        menu.Items.Add("ℹ About", null, (_, _) => ShowAboutDialog());
+        var menu = MenuStyling.CreateMenu();
+        menu.Items.Add(MenuStyling.CreateItem("Configure", MenuIconKind.Settings, (_, _) => ShowConfigureDialog()));
+        menu.Items.Add(MenuStyling.CreateItem("Read selected text", MenuIconKind.Speak, (_, _) => ReadSelectedTextAloud()));
+        menu.Items.Add(MenuStyling.CreateItem("Help", MenuIconKind.Help, (_, _) => ShowHelpDialog()));
+        menu.Items.Add(MenuStyling.CreateItem("About", MenuIconKind.Info, (_, _) => ShowAboutDialog()));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("✕ Exit", null, (_, _) => ExitThread());
+        menu.Items.Add(MenuStyling.CreateItem("Exit", MenuIconKind.Exit, (_, _) => ExitThread()));
 
         var icon = new NotifyIcon
         {
@@ -78,13 +85,14 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private ContextMenuStrip BuildSelectedTextContextMenu()
     {
-        var menu = new ContextMenuStrip();
-        menu.Items.Add("ClipSpeak selected text", null, (_, _) => ReadSelectedTextAloud());
+        var menu = MenuStyling.CreateMenu();
+        menu.Items.Add(MenuStyling.CreateItem("ClipSpeak selected text", MenuIconKind.Speak, (_, _) => ReadSelectedTextAloud(_selectedTextMouseTargetWindow)));
         return menu;
     }
 
-    private void ShowSelectedTextMouseMenu(Point location)
+    private void ShowSelectedTextMouseMenu(Point location, IntPtr targetWindow)
     {
+        _selectedTextMouseTargetWindow = targetWindow;
         _selectedTextContextMenu.Show(location);
     }
 
@@ -128,7 +136,22 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private void ReadSelectedTextAloud()
     {
-        var result = _selectedText.TryGetSelectedText();
+        ReadSelectedTextAloud(ForegroundWindow.Current);
+    }
+
+    private void ReadSelectedTextAloud(IntPtr targetWindow)
+    {
+        SelectedTextResult result;
+        try
+        {
+            result = _selectedText.TryGetSelectedText(targetWindow);
+        }
+        catch
+        {
+            ShowBalloon("Could not read selection", "ClipSpeak hit an unexpected error while copying selected text.");
+            return;
+        }
+
         if (result.Text is null)
         {
             ShowBalloon("No selected text found", "Select text in the focused app, then use the selected-text hotkey.");

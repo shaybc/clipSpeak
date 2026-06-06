@@ -8,18 +8,15 @@ internal static class KeyboardInput
     private const ushort VkLWin = 0x5B;
     private const ushort VkRWin = 0x5C;
     private const ushort VkC = 0x43;
+    private const ushort VkR = 0x52;
+    private const short KeyPressed = unchecked((short)0x8000);
     private const uint InputKeyboard = 1;
     private const uint KeyEventFKeyUp = 0x0002;
 
     public static void SendCopyShortcut()
     {
-        // Release common hotkey modifiers before sending Ctrl+C to the foreground app.
-        SendKeyUp(VkControl);
-        SendKeyUp(VkShift);
-        SendKeyUp(VkMenu);
-        SendKeyUp(VkLWin);
-        SendKeyUp(VkRWin);
-        Thread.Sleep(80);
+        WaitForPhysicalKeysReleased(VkControl, VkShift, VkMenu, VkLWin, VkRWin, VkR, VkC);
+        Thread.Sleep(35);
 
         SendKeyboardInputs(
             KeyDown(VkControl),
@@ -28,9 +25,26 @@ internal static class KeyboardInput
             KeyUp(VkControl));
     }
 
-    private static void SendKeyUp(ushort virtualKey)
+    public static void SendCopyShortcutWithSendKeys()
     {
-        SendKeyboardInputs(KeyUp(virtualKey));
+        WaitForPhysicalKeysReleased(VkControl, VkShift, VkMenu, VkLWin, VkRWin, VkR, VkC);
+        Thread.Sleep(35);
+        SendKeys.SendWait("^c");
+    }
+
+    public static void WaitForPhysicalKeysReleased(params ushort[] virtualKeys)
+    {
+        var deadline = Environment.TickCount64 + 800;
+        while (Environment.TickCount64 < deadline && virtualKeys.Any(IsKeyPressed))
+        {
+            Thread.Sleep(25);
+            Application.DoEvents();
+        }
+    }
+
+    private static bool IsKeyPressed(ushort virtualKey)
+    {
+        return (GetAsyncKeyState(virtualKey) & KeyPressed) == KeyPressed;
     }
 
     private static void SendKeyboardInputs(params Input[] inputs)
@@ -59,6 +73,9 @@ internal static class KeyboardInput
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint SendInput(uint inputCount, Input[] inputs, int inputSize);
+
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int virtualKey);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct Input

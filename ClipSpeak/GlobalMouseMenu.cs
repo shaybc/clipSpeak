@@ -9,15 +9,16 @@ internal sealed class GlobalMouseMenu : IDisposable
     private const short KeyPressed = unchecked((short)0x8000);
 
     private readonly LowLevelMouseProc _proc;
-    private readonly Action<Point> _showMenu;
+    private readonly Action<Point, IntPtr> _showMenu;
     private readonly SynchronizationContext? _syncContext;
     private IntPtr _hookId;
     private bool _disposed;
     private bool _suppressNextRightButtonUp;
 
     public bool Enabled { get; set; }
+    public bool IsInstalled => _hookId != IntPtr.Zero;
 
-    public GlobalMouseMenu(Action<Point> showMenu)
+    public GlobalMouseMenu(Action<Point, IntPtr> showMenu)
     {
         _showMenu = showMenu;
         _syncContext = SynchronizationContext.Current;
@@ -27,7 +28,7 @@ internal sealed class GlobalMouseMenu : IDisposable
 
     private static IntPtr SetHook(LowLevelMouseProc proc)
     {
-        return SetWindowsHookEx(WhMouseLowLevel, proc, GetModuleHandle(null), 0);
+        return SetWindowsHookEx(WhMouseLowLevel, proc, IntPtr.Zero, 0);
     }
 
     private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -38,8 +39,9 @@ internal sealed class GlobalMouseMenu : IDisposable
             if (message == WmRButtonDown && Enabled && IsControlPressed())
             {
                 var data = Marshal.PtrToStructure<MsllHookStruct>(lParam);
+                var targetWindow = ForegroundWindow.Current;
                 _suppressNextRightButtonUp = true;
-                PostShowMenu(new Point(data.Point.X, data.Point.Y));
+                PostShowMenu(new Point(data.Point.X, data.Point.Y), targetWindow);
                 return 1;
             }
 
@@ -53,15 +55,15 @@ internal sealed class GlobalMouseMenu : IDisposable
         return CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
-    private void PostShowMenu(Point location)
+    private void PostShowMenu(Point location, IntPtr targetWindow)
     {
         if (_syncContext is null)
         {
-            _showMenu(location);
+            _showMenu(location, targetWindow);
             return;
         }
 
-        _syncContext.Post(_ => _showMenu(location), null);
+        _syncContext.Post(_ => _showMenu(location, targetWindow), null);
     }
 
     private static bool IsControlPressed()
@@ -98,9 +100,6 @@ internal sealed class GlobalMouseMenu : IDisposable
 
     [DllImport("user32.dll")]
     private static extern short GetAsyncKeyState(int virtualKey);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr GetModuleHandle(string? moduleName);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MsllHookStruct
