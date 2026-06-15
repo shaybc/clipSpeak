@@ -2,7 +2,7 @@
 
 ClipSpeak is a Windows tray application that reads the current clipboard text aloud using the user's default Windows speech voice.
 
-Current version: `1.4.0`
+Current version: `1.5.0`
 
 ## Features
 
@@ -10,6 +10,7 @@ Current version: `1.4.0`
 - Global hotkey to read the clipboard.
 - Global hotkey to read selected text from the focused app.
 - `Ctrl + Right Click` popup menu to read selected text.
+- Optional cleanup to remove selected text from the clipboard after it is sent to speech.
 - Global hotkey to pause or stop speech.
 - Configure, Help, and About dialogs available from the tray icon.
 - Dark tray menus with small action icons.

@@ -6,10 +6,10 @@ internal sealed class SelectedTextReader
     private const int FallbackCopyTimeoutMilliseconds = 900;
     private const int ClipboardPollIntervalMilliseconds = 50;
 
-    public SelectedTextResult TryGetSelectedText(IntPtr targetWindow = default)
+    public SelectedTextResult TryGetSelectedText(bool clearClipboardAfterReading, IntPtr targetWindow = default)
     {
         System.Windows.Forms.IDataObject? previousClipboard = null;
-        var clipboardRestored = true;
+        var clipboardCleanedUp = true;
 
         try
         {
@@ -27,17 +27,25 @@ internal sealed class SelectedTextReader
 
             if (!string.IsNullOrWhiteSpace(text))
             {
-                RestoreClipboardSoon(previousClipboard);
-                return new SelectedTextResult(text, ClipboardRestored: true);
+                if (clearClipboardAfterReading)
+                {
+                    ClearClipboardSoon();
+                }
+                else
+                {
+                    RestoreClipboardSoon(previousClipboard);
+                }
+
+                return new SelectedTextResult(text, ClipboardCleanedUp: true);
             }
 
-            clipboardRestored = TryRestoreClipboard(previousClipboard);
-            return new SelectedTextResult(null, clipboardRestored);
+            clipboardCleanedUp = TryRestoreClipboard(previousClipboard);
+            return new SelectedTextResult(null, clipboardCleanedUp);
         }
         catch
         {
-            clipboardRestored = TryRestoreClipboard(previousClipboard);
-            return new SelectedTextResult(null, clipboardRestored);
+            clipboardCleanedUp = TryRestoreClipboard(previousClipboard);
+            return new SelectedTextResult(null, clipboardCleanedUp);
         }
     }
 
@@ -77,6 +85,18 @@ internal sealed class SelectedTextReader
         timer.Start();
     }
 
+    private static void ClearClipboardSoon()
+    {
+        var timer = new System.Windows.Forms.Timer { Interval = 250 };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            _ = TryClearClipboard();
+            timer.Dispose();
+        };
+        timer.Start();
+    }
+
     private static bool TryRestoreClipboard(System.Windows.Forms.IDataObject? previousClipboard)
     {
         try
@@ -97,6 +117,19 @@ internal sealed class SelectedTextReader
             return false;
         }
     }
+
+    private static bool TryClearClipboard()
+    {
+        try
+        {
+            Clipboard.Clear();
+            return true;
+        }
+        catch (Exception ex) when (ex is ExternalException or ThreadStateException)
+        {
+            return false;
+        }
+    }
 }
 
-internal sealed record SelectedTextResult(string? Text, bool ClipboardRestored);
+internal sealed record SelectedTextResult(string? Text, bool ClipboardCleanedUp);

@@ -62,6 +62,7 @@ internal sealed class HelpForm : Form
             "",
             "Reading selected text",
             "Select text in the focused app, then press the Read selected text hotkey. ClipSpeak temporarily copies the selection, reads it aloud, and restores your previous clipboard contents when possible.",
+            "If Remove selected text from clipboard after reading is enabled, ClipSpeak clears that temporary selected text from the clipboard after sending it to speech instead of restoring the previous clipboard contents.",
             "",
             "Mouse popup",
             "Hold Ctrl and right-click selected text to show the ClipSpeak popup menu, then choose ClipSpeak selected text. This is a ClipSpeak menu, not an item added to each app's own right-click menu. A normal right-click still shows the app's own menu.",

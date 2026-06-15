@@ -6,6 +6,7 @@ internal sealed class ConfigureForm : Form
     private readonly HotkeyBox _readSelectionHotkeyBox;
     private readonly HotkeyBox _stopHotkeyBox;
     private readonly CheckBox _showSelectedTextMouseMenuCheckBox;
+    private readonly CheckBox _clearSelectedTextClipboardAfterReadingCheckBox;
 
     public AppSettings Settings { get; private set; }
 
@@ -16,7 +17,8 @@ internal sealed class ConfigureForm : Form
             ReadHotkey = currentSettings.ReadHotkey,
             ReadSelectionHotkey = currentSettings.ReadSelectionHotkey,
             StopHotkey = currentSettings.StopHotkey,
-            ShowSelectedTextMouseMenu = currentSettings.ShowSelectedTextMouseMenu
+            ShowSelectedTextMouseMenu = currentSettings.ShowSelectedTextMouseMenu,
+            ClearSelectedTextClipboardAfterReading = currentSettings.ClearSelectedTextClipboardAfterReading
         };
 
         Text = "Configure ClipSpeak";
@@ -25,7 +27,7 @@ internal sealed class ConfigureForm : Form
         MinimizeBox = false;
         MaximizeBox = false;
         ShowInTaskbar = false;
-        ClientSize = new Size(440, 270);
+        ClientSize = new Size(440, 306);
 
         var readLabel = new Label
         {
@@ -85,11 +87,19 @@ internal sealed class ConfigureForm : Form
             Location = new Point(20, 184)
         };
 
+        _clearSelectedTextClipboardAfterReadingCheckBox = new CheckBox
+        {
+            Text = "Remove selected text from clipboard after reading",
+            AutoSize = true,
+            Checked = Settings.ClearSelectedTextClipboardAfterReading,
+            Location = new Point(20, 214)
+        };
+
         var saveButton = new Button
         {
             Text = "Save",
             DialogResult = DialogResult.OK,
-            Location = new Point(254, 226),
+            Location = new Point(254, 262),
             Size = new Size(75, 28)
         };
         saveButton.Click += (_, _) => SaveSettings();
@@ -98,7 +108,7 @@ internal sealed class ConfigureForm : Form
         {
             Text = "Cancel",
             DialogResult = DialogResult.Cancel,
-            Location = new Point(335, 226),
+            Location = new Point(335, 262),
             Size = new Size(75, 28)
         };
 
@@ -114,6 +124,7 @@ internal sealed class ConfigureForm : Form
             _stopHotkeyBox,
             hint,
             _showSelectedTextMouseMenuCheckBox,
+            _clearSelectedTextClipboardAfterReadingCheckBox,
             saveButton,
             cancelButton
         ]);
@@ -147,7 +158,8 @@ internal sealed class ConfigureForm : Form
             ReadHotkey = _readHotkeyBox.Hotkey,
             ReadSelectionHotkey = _readSelectionHotkeyBox.Hotkey,
             StopHotkey = _stopHotkeyBox.Hotkey,
-            ShowSelectedTextMouseMenu = _showSelectedTextMouseMenuCheckBox.Checked
+            ShowSelectedTextMouseMenu = _showSelectedTextMouseMenuCheckBox.Checked,
+            ClearSelectedTextClipboardAfterReading = _clearSelectedTextClipboardAfterReadingCheckBox.Checked
         };
     }
 }

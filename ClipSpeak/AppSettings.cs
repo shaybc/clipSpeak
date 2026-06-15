@@ -10,6 +10,7 @@ internal sealed class AppSettings
     public HotkeyDefinition ReadSelectionHotkey { get; set; } = new(Keys.R, HotkeyModifiers.Control | HotkeyModifiers.Alt);
     public HotkeyDefinition StopHotkey { get; set; } = new(Keys.S, HotkeyModifiers.Control | HotkeyModifiers.Alt);
     public bool ShowSelectedTextMouseMenu { get; set; } = true;
+    public bool ClearSelectedTextClipboardAfterReading { get; set; }
 
     public static string SettingsDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ClipSpeak");

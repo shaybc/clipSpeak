@@ -144,7 +144,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         SelectedTextResult result;
         try
         {
-            result = _selectedText.TryGetSelectedText(targetWindow);
+            result = _selectedText.TryGetSelectedText(_settings.ClearSelectedTextClipboardAfterReading, targetWindow);
         }
         catch
         {
@@ -158,7 +158,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
             return;
         }
 
-        if (!result.ClipboardRestored)
+        if (!result.ClipboardCleanedUp)
         {
             ShowBalloon("Clipboard restore issue", "ClipSpeak read the selected text, but could not restore the previous clipboard contents.");
         }
