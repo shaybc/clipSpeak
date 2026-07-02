@@ -29,14 +29,14 @@ internal sealed class SelectedTextReader
             {
                 if (clearClipboardAfterReading)
                 {
-                    ClearClipboardSoon();
+                    clipboardCleanedUp = TryClearClipboard();
                 }
                 else
                 {
-                    RestoreClipboardSoon(previousClipboard);
+                    clipboardCleanedUp = TryRestoreClipboard(previousClipboard);
                 }
 
-                return new SelectedTextResult(text, ClipboardCleanedUp: true);
+                return new SelectedTextResult(text, clipboardCleanedUp);
             }
 
             clipboardCleanedUp = TryRestoreClipboard(previousClipboard);
@@ -71,30 +71,6 @@ internal sealed class SelectedTextReader
         }
 
         return null;
-    }
-
-    private static void RestoreClipboardSoon(System.Windows.Forms.IDataObject? previousClipboard)
-    {
-        var timer = new System.Windows.Forms.Timer { Interval = 250 };
-        timer.Tick += (_, _) =>
-        {
-            timer.Stop();
-            _ = TryRestoreClipboard(previousClipboard);
-            timer.Dispose();
-        };
-        timer.Start();
-    }
-
-    private static void ClearClipboardSoon()
-    {
-        var timer = new System.Windows.Forms.Timer { Interval = 250 };
-        timer.Tick += (_, _) =>
-        {
-            timer.Stop();
-            _ = TryClearClipboard();
-            timer.Dispose();
-        };
-        timer.Start();
     }
 
     private static bool TryRestoreClipboard(System.Windows.Forms.IDataObject? previousClipboard)

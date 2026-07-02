@@ -23,7 +23,6 @@ internal sealed class SpeechService : IDisposable
             return;
         }
 
-        Stop();
         Invoke("Speak", text, (int)(SpeechVoiceSpeakFlags.Async | SpeechVoiceSpeakFlags.PurgeBeforeSpeak));
     }
 

@@ -12,6 +12,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly Icon _appIcon;
     private AppSettings _settings;
     private IntPtr _selectedTextMouseTargetWindow;
+    private bool _readingSelectedText;
 
     public TrayApplicationContext()
     {
@@ -141,29 +142,42 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private void ReadSelectedTextAloud(IntPtr targetWindow)
     {
-        SelectedTextResult result;
+        if (_readingSelectedText)
+        {
+            return;
+        }
+
+        _readingSelectedText = true;
         try
         {
-            result = _selectedText.TryGetSelectedText(_settings.ClearSelectedTextClipboardAfterReading, targetWindow);
-        }
-        catch
-        {
-            ShowBalloon("Could not read selection", "ClipSpeak hit an unexpected error while copying selected text.");
-            return;
-        }
+            SelectedTextResult result;
+            try
+            {
+                result = _selectedText.TryGetSelectedText(_settings.ClearSelectedTextClipboardAfterReading, targetWindow);
+            }
+            catch
+            {
+                ShowBalloon("Could not read selection", "ClipSpeak hit an unexpected error while copying selected text.");
+                return;
+            }
 
-        if (result.Text is null)
-        {
-            ShowBalloon("No selected text found", "Select text in the focused app, then use the selected-text hotkey.");
-            return;
-        }
+            if (result.Text is null)
+            {
+                ShowBalloon("No selected text found", "Select text in the focused app, then use the selected-text hotkey.");
+                return;
+            }
 
-        if (!result.ClipboardCleanedUp)
-        {
-            ShowBalloon("Clipboard restore issue", "ClipSpeak read the selected text, but could not restore the previous clipboard contents.");
-        }
+            if (!result.ClipboardCleanedUp)
+            {
+                ShowBalloon("Clipboard restore issue", "ClipSpeak read the selected text, but could not restore the previous clipboard contents.");
+            }
 
-        _speech.SpeakAsync(result.Text);
+            _speech.SpeakAsync(result.Text);
+        }
+        finally
+        {
+            _readingSelectedText = false;
+        }
     }
 
     private void StopReading()
