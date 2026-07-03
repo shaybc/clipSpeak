@@ -2,7 +2,7 @@
 
 ClipSpeak is a Windows tray application that reads the current clipboard text aloud using the user's default Windows speech voice.
 
-Current version: `1.6.0`
+Current version: `1.7.0`
 
 ## Features
 
@@ -10,7 +10,6 @@ Current version: `1.6.0`
 - Global hotkey to read the clipboard.
 - Global hotkey to read selected text from the focused app.
 - `Ctrl + Right Click` popup menu to read selected text.
-- Optional cleanup to remove selected text from the clipboard after it is sent to speech.
 - Global hotkey to pause or stop speech.
 - Configure, Help, and About dialogs available from the tray icon.
 - Dark tray menus with small action icons.
@@ -23,7 +22,7 @@ Current version: `1.6.0`
 - At least one installed Windows text-to-speech voice.
 - A default Windows speech voice selected.
 - Clipboard text to read.
-- Selected text in an app that supports copying with `Ctrl+C`, when using selected-text reading.
+- Selected text in an app that exposes selections through Windows UI Automation, when using selected-text reading.
 
 ClipSpeak uses the built-in Windows speech engine. You do not need to keep Narrator running, but Narrator or Windows speech settings are the usual place to confirm that speech output works.
 
@@ -51,7 +50,7 @@ You can also hold `Ctrl` and right-click selected text to open the ClipSpeak pop
 - Inno Setup 6 to compile the installer.
 - PowerShell or another Windows shell for the build commands below.
 
-The app targets `net8.0-windows` and uses Windows Forms, clipboard APIs, global hotkeys, and the built-in Windows speech engine, so it must be built on Windows.
+The app targets `net8.0-windows` and uses Windows Forms, clipboard APIs, Windows UI Automation, global hotkeys, and the built-in Windows speech engine, so it must be built on Windows.
 
 Use the root build script to build, publish, and compile the installer:
 

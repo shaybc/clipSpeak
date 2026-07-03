@@ -150,29 +150,24 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _readingSelectedText = true;
         try
         {
-            SelectedTextResult result;
+            string? text;
             try
             {
-                result = _selectedText.TryGetSelectedText(_settings.ClearSelectedTextClipboardAfterReading, targetWindow);
+                text = _selectedText.TryGetSelectedText(targetWindow);
             }
             catch
             {
-                ShowBalloon("Could not read selection", "ClipSpeak hit an unexpected error while copying selected text.");
+                ShowBalloon("Could not read selection", "ClipSpeak hit an unexpected error while reading selected text.");
                 return;
             }
 
-            if (result.Text is null)
+            if (text is null)
             {
                 ShowBalloon("No selected text found", "Select text in the focused app, then use the selected-text hotkey.");
                 return;
             }
 
-            if (!result.ClipboardCleanedUp)
-            {
-                ShowBalloon("Clipboard restore issue", "ClipSpeak read the selected text, but could not restore the previous clipboard contents.");
-            }
-
-            _speech.SpeakAsync(result.Text);
+            _speech.SpeakAsync(text);
         }
         finally
         {
