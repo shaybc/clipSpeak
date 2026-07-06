@@ -132,7 +132,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
             return;
         }
 
-        _speech.SpeakAsync(text);
+        _speech.SpeakAsync(PrepareTextForSpeech(text));
     }
 
     private void ReadSelectedTextAloud()
@@ -167,12 +167,17 @@ internal sealed class TrayApplicationContext : ApplicationContext
                 return;
             }
 
-            _speech.SpeakAsync(text);
+            _speech.SpeakAsync(PrepareTextForSpeech(text));
         }
         finally
         {
             _readingSelectedText = false;
         }
+    }
+
+    private string PrepareTextForSpeech(string text)
+    {
+        return _settings.SuppressUrlReading ? SpeechTextSanitizer.SuppressUrls(text) : text;
     }
 
     private void StopReading()

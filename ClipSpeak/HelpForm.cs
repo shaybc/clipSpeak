@@ -71,6 +71,7 @@ internal sealed class HelpForm : Form
             "",
             "Configuring hotkeys",
             "Right-click the ClipSpeak tray icon and choose Configure. Click a hotkey field, press the new key combination, then choose Save. Each hotkey must use a modifier such as Ctrl, Alt, or Shift, and all hotkeys must be different.",
+            "Enable Don't read URLs aloud to speak link text without reading the URL itself.",
             "",
             "Setting up Windows speech",
             "ClipSpeak uses the built-in Windows speech engine. You do not need to keep Narrator running, but Narrator settings are a good place to test that speech works.",

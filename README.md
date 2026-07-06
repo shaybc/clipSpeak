@@ -2,7 +2,7 @@
 
 ClipSpeak is a Windows tray application that reads the current clipboard text aloud using the user's default Windows speech voice.
 
-Current version: `1.8.0`
+Current version: `1.9.0`
 
 ## Features
 

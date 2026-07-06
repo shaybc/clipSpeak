@@ -6,6 +6,7 @@ internal sealed class ConfigureForm : Form
     private readonly HotkeyBox _readSelectionHotkeyBox;
     private readonly HotkeyBox _stopHotkeyBox;
     private readonly CheckBox _showSelectedTextMouseMenuCheckBox;
+    private readonly CheckBox _suppressUrlReadingCheckBox;
 
     public AppSettings Settings { get; private set; }
 
@@ -16,7 +17,8 @@ internal sealed class ConfigureForm : Form
             ReadHotkey = currentSettings.ReadHotkey,
             ReadSelectionHotkey = currentSettings.ReadSelectionHotkey,
             StopHotkey = currentSettings.StopHotkey,
-            ShowSelectedTextMouseMenu = currentSettings.ShowSelectedTextMouseMenu
+            ShowSelectedTextMouseMenu = currentSettings.ShowSelectedTextMouseMenu,
+            SuppressUrlReading = currentSettings.SuppressUrlReading
         };
 
         Text = "Configure ClipSpeak";
@@ -25,7 +27,7 @@ internal sealed class ConfigureForm : Form
         MinimizeBox = false;
         MaximizeBox = false;
         ShowInTaskbar = false;
-        ClientSize = new Size(440, 306);
+        ClientSize = new Size(440, 338);
 
         var readLabel = new Label
         {
@@ -85,11 +87,19 @@ internal sealed class ConfigureForm : Form
             Location = new Point(20, 184)
         };
 
+        _suppressUrlReadingCheckBox = new CheckBox
+        {
+            Text = "Don't read URLs aloud",
+            AutoSize = true,
+            Checked = Settings.SuppressUrlReading,
+            Location = new Point(20, 216)
+        };
+
         var saveButton = new Button
         {
             Text = "Save",
             DialogResult = DialogResult.OK,
-            Location = new Point(254, 262),
+            Location = new Point(254, 294),
             Size = new Size(75, 28)
         };
         saveButton.Click += (_, _) => SaveSettings();
@@ -98,7 +108,7 @@ internal sealed class ConfigureForm : Form
         {
             Text = "Cancel",
             DialogResult = DialogResult.Cancel,
-            Location = new Point(335, 262),
+            Location = new Point(335, 294),
             Size = new Size(75, 28)
         };
 
@@ -114,6 +124,7 @@ internal sealed class ConfigureForm : Form
             _stopHotkeyBox,
             hint,
             _showSelectedTextMouseMenuCheckBox,
+            _suppressUrlReadingCheckBox,
             saveButton,
             cancelButton
         ]);
@@ -147,7 +158,8 @@ internal sealed class ConfigureForm : Form
             ReadHotkey = _readHotkeyBox.Hotkey,
             ReadSelectionHotkey = _readSelectionHotkeyBox.Hotkey,
             StopHotkey = _stopHotkeyBox.Hotkey,
-            ShowSelectedTextMouseMenu = _showSelectedTextMouseMenuCheckBox.Checked
+            ShowSelectedTextMouseMenu = _showSelectedTextMouseMenuCheckBox.Checked,
+            SuppressUrlReading = _suppressUrlReadingCheckBox.Checked
         };
     }
 }
